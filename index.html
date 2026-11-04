@@ -1,0 +1,1369 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:,">
+<title>NEON RUSH 3D</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;700;900&display=swap');
+
+:root {
+  --red: #ff2020;
+  --black: #080808;
+  --panel: #151515;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--black);
+  color: white;
+  font-family: 'Vazirmatn', sans-serif;
+  min-height: 100vh;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.page {
+  display: none;
+  min-height: 100vh;
+  padding: 25px 16px;
+}
+
+.page.active {
+  display: block;
+}
+
+.container {
+  max-width: 1000px;
+  margin: auto;
+}
+
+.logo {
+  text-align: center;
+  font-size: clamp(38px, 8vw, 75px);
+  font-weight: 900;
+  letter-spacing: 3px;
+  text-shadow: 0 0 15px var(--red), 0 0 35px var(--red);
+}
+
+.logo span {
+  color: var(--red);
+}
+
+.subtitle {
+  text-align: center;
+  color: #aaa;
+  margin: 5px 0 30px;
+}
+
+.panel {
+  background: linear-gradient(145deg, #1b1b1b, #101010);
+  border: 1px solid #383838;
+  border-radius: 18px;
+  padding: 22px;
+  margin: 16px 0;
+}
+
+h2 {
+  color: var(--red);
+  margin-bottom: 15px;
+}
+
+.btn {
+  padding: 13px 19px;
+  border-radius: 11px;
+  background: #222;
+  border: 1px solid #444;
+  color: white;
+  font-size: 15px;
+  font-weight: 700;
+  transition: .2s;
+}
+
+.btn:hover {
+  border-color: var(--red);
+  box-shadow: 0 0 15px #ff202055;
+  transform: translateY(-2px);
+}
+
+.btn.red {
+  background: var(--red);
+  border-color: var(--red);
+}
+
+.btn:disabled {
+  opacity: .4;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.menu-buttons {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 13px;
+  max-width: 520px;
+  margin: 25px auto;
+}
+
+.stats {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.stat {
+  background: #191919;
+  border: 1px solid #333;
+  border-radius: 12px;
+  padding: 12px 20px;
+  min-width: 120px;
+  text-align: center;
+}
+
+.stat strong {
+  display: block;
+  color: var(--red);
+  font-size: 23px;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 15px;
+}
+
+.car-card {
+  background: #111;
+  border: 1px solid #333;
+  border-radius: 15px;
+  padding: 18px;
+  text-align: center;
+}
+
+.car-card.selected {
+  border: 2px solid var(--red);
+  box-shadow: 0 0 18px #ff202044;
+}
+
+/* پیش‌نمایش سه‌بعدی ماشین انتخابی در گاراژ */
+.garage-preview {
+  margin: 18px 0 22px;
+  padding: 14px;
+  background: radial-gradient(ellipse at center, #242424 0%, #090909 72%);
+  border: 1px solid #ff202066;
+  border-radius: 16px;
+  box-shadow: 0 0 22px #ff202022;
+  text-align: center;
+}
+#garageCanvas {
+  display: block;
+  width: 100%;
+  height: 250px;
+  border-radius: 12px;
+  background: transparent;
+}
+.garage-preview p {
+  color: #aaa;
+  margin-top: 6px;
+  font-size: 13px;
+}
+
+.car-card p {
+  color: #aaa;
+  margin: 8px 0 14px;
+  font-size: 14px;
+}
+
+.back {
+  margin-bottom: 20px;
+}
+
+#gamePage {
+  padding: 10px;
+  background: #050505;
+}
+
+.game-wrap {
+  max-width: 900px;
+  margin: auto;
+}
+
+.game-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.game-info {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 13px;
+}
+
+.game-info span {
+  background: #191919;
+  border: 1px solid #444;
+  padding: 7px 10px;
+  border-radius: 8px;
+}
+
+#gameCanvas {
+  display: block;
+  width: 100%;
+  height: min(70vh, 650px);
+  min-height: 360px;
+  border: 2px solid var(--red);
+  border-radius: 14px;
+  box-shadow: 0 0 25px #ff202044;
+  background: #080808;
+  touch-action: none;
+}
+
+.game-controls {
+  display: flex;
+  justify-content: center;
+  gap: 22px;
+  margin-top: 12px;
+}
+
+.control-btn {
+  width: 90px;
+  height: 55px;
+  background: #222;
+  color: white;
+  border: 1px solid var(--red);
+  border-radius: 12px;
+  font-size: 25px;
+}
+
+.small-note {
+  text-align: center;
+  color: #777;
+  font-size: 12px;
+  margin-top: 20px;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: #000d;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 10;
+}
+
+.overlay.show {
+  display: flex;
+}
+
+.overlay-box {
+  background: #171717;
+  border: 1px solid var(--red);
+  border-radius: 18px;
+  padding: 28px;
+  text-align: center;
+  width: min(100%, 380px);
+  box-shadow: 0 0 30px #ff202044;
+}
+
+.overlay-box p {
+  color: #bbb;
+  margin: 14px 0 20px;
+}
+
+.setting-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 0;
+  border-bottom: 1px solid #333;
+}
+
+@media(max-width:500px) {
+  .menu-buttons {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<!-- منوی اصلی -->
+<section id="homePage" class="page active">
+  <div class="container">
+    <div class="logo">NEON <span>RUSH</span></div>
+    <p class="subtitle">3D EDITION | نسخه سه‌بعدی</p>
+
+    <div class="stats">
+      <div class="stat">سکه‌ها<strong id="homeCoins">0</strong></div>
+      <div class="stat">رکورد<strong id="homeRecord">0</strong></div>
+      <div class="stat">ماشین<strong id="homeCar">قرمز</strong></div>
+    </div>
+
+    <div class="panel" style="text-align:center">
+      <h2>به دنیای مسابقه خوش آمدی!</h2>
+      <p style="color:#aaa">جاده منتظر توست. از موانع عبور کن و رکورد بزن!</p>
+
+      <div class="menu-buttons">
+        <button class="btn red" onclick="startGame()">شروع بازی 🏎️</button>
+        <button class="btn" onclick="showPage('garagePage')">گاراژ 🚘</button>
+        <button class="btn" onclick="showPage('shopPage')">فروشگاه 🛒</button>
+        <button class="btn" onclick="showPage('recordsPage')">رکوردها 🏆</button>
+        <button class="btn" onclick="showPage('settingsPage')">تنظیمات ⚙️</button>
+      </div>
+    </div>
+
+    <p class="small-note">NEON RUSH 3D</p>
+  </div>
+</section>
+
+<!-- گاراژ -->
+<section id="garagePage" class="page">
+  <div class="container">
+    <button class="btn back" onclick="showPage('homePage')">← بازگشت</button>
+    <h2>🚘 گاراژ ماشین‌ها</h2>
+    <p style="color:#aaa;margin-bottom:18px">ماشین مورد علاقه‌ات را انتخاب کن.</p>
+    <div class="garage-preview">
+      <canvas id="garageCanvas" aria-label="پیش‌نمایش سه‌بعدی ماشین انتخاب‌شده"></canvas>
+      <p id="garagePreviewName">ماشین انتخاب‌شده</p>
+    </div>
+    <div class="cards" id="garageCards"></div>
+  </div>
+</section>
+
+<!-- فروشگاه -->
+<section id="shopPage" class="page">
+  <div class="container">
+    <button class="btn back" onclick="showPage('homePage')">← بازگشت</button>
+    <h2>🛒 فروشگاه</h2>
+    <div class="panel">
+      موجودی سکه: <strong id="shopCoins" style="color:var(--red)">0</strong>
+    </div>
+    <div class="cards" id="shopCards"></div>
+  </div>
+</section>
+
+<!-- رکوردها -->
+<section id="recordsPage" class="page">
+  <div class="container">
+    <button class="btn back" onclick="showPage('homePage')">← بازگشت</button>
+    <h2>🏆 رکوردهای من</h2>
+    <div class="panel">
+      <div class="setting-row"><span>بهترین امتیاز</span><strong id="recordScore">0</strong></div>
+      <div class="setting-row"><span>مجموع سکه‌ها</span><strong id="recordCoins">0</strong></div>
+      <div class="setting-row"><span>بالاترین مرحله</span><strong id="recordLevel">1</strong></div>
+      <div class="setting-row"><span>بازی‌های انجام‌شده</span><strong id="recordGames">0</strong></div>
+    </div>
+  </div>
+</section>
+
+<!-- تنظیمات -->
+<section id="settingsPage" class="page">
+  <div class="container">
+    <button class="btn back" onclick="showPage('homePage')">← بازگشت</button>
+    <h2>⚙️ تنظیمات</h2>
+    <div class="panel">
+      <div class="setting-row">
+        <span>نمایش دکمه‌های لمسی</span>
+        <input type="checkbox" id="showControls" checked>
+      </div>
+      <div class="setting-row">
+        <span>صدای بازی</span>
+        <input type="checkbox" id="soundToggle" checked>
+      </div>
+    </div>
+    <button class="btn" onclick="resetData()">پاک کردن اطلاعات بازی</button>
+  </div>
+</section>
+
+<!-- صفحه سه‌بعدی -->
+<section id="gamePage" class="page">
+  <div class="game-wrap">
+    <div class="game-top">
+      <button class="btn" onclick="pauseGame()">⏸ توقف</button>
+      <div class="game-info">
+        <span>امتیاز: <b id="score">0</b></span>
+        <span>جان: <b id="lives">3</b></span>
+        <span>مرحله: <b id="level">1</b></span>
+        <span>سکه: <b id="runCoins">0</b></span>
+      </div>
+    </div>
+
+    <canvas id="gameCanvas"></canvas>
+
+    <div class="game-controls" id="touchControls">
+      <button class="control-btn" id="leftBtn">◀</button>
+      <button class="control-btn" id="rightBtn">▶</button>
+    </div>
+
+    <p class="small-note">با کلیدهای چپ و راست یا دکمه‌های پایین حرکت کن.</p>
+  </div>
+</section>
+
+<!-- پنجره توقف -->
+<div class="overlay" id="overlay">
+  <div class="overlay-box">
+    <h2 id="overlayTitle">بازی متوقف شد</h2>
+    <p id="overlayText">برای ادامه آماده‌ای؟</p>
+    <button class="btn red" id="resumeBtn" onclick="resumeGame()">ادامه بازی</button>
+    <button class="btn" onclick="startGame()">شروع دوباره</button>
+    <button class="btn" onclick="exitGame()">بازگشت به منو</button>
+  </div>
+</div>
+
+<!-- کتابخانه سه‌بعدی -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+
+<script>
+
+// ===================================
+// سیستم صداهای NEON RUSH 3D
+// ===================================
+
+const soundToggle = document.getElementById('soundToggle');
+
+const soundFiles = {
+  coin: 'sounds/coin.mp3',
+  crash: 'sounds/crash.mp3',
+  power: 'sounds/power.mp3',
+  click: 'sounds/click.mp3'
+};
+
+function playSfx(name) {
+  if (!soundToggle || !soundToggle.checked) return;
+  const audio = new Audio(soundFiles[name]);
+  audio.volume = name === 'crash' ? 0.65 : 0.4;
+  audio.play().catch(() => {});
+}
+
+// موسیقی پس‌زمینه
+const musicAudio = new Audio('sounds/music.mp3');
+musicAudio.loop = true;
+musicAudio.volume = 0.25;
+
+
+function startGameAudio() {
+  if (!soundToggle || !soundToggle.checked) return;
+  musicAudio.play().catch(() => {});
+}
+
+function pauseGameAudio() {
+  musicAudio.pause();
+}
+
+function stopGameAudio() {
+  musicAudio.pause();
+  musicAudio.currentTime = 0;
+}
+
+// صدای کلیک دکمه‌ها
+document.addEventListener('click', function(event) {
+  if (event.target.closest('button')) {
+    playSfx('click');
+  }
+});
+
+// روشن و خاموش کردن صدا از تنظیمات
+soundToggle.addEventListener('change', function() {
+  if (!this.checked) {
+    pauseGameAudio();
+    musicAudio.currentTime = 0;
+    } else if (running && !paused) {
+    startGameAudio();
+  }
+});
+
+// ===================================
+// اطلاعات بازی و ذخیره‌سازی
+// ===================================
+
+const defaultData = {
+  coins: 0,
+  record: 0,
+  bestLevel: 1,
+  games: 0,
+  selectedCar: 0,
+  unlockedCars: [0],
+  shieldUpgrade: 0,
+  magnetUpgrade: 0
+};
+
+let data;
+
+try {
+  data = {...defaultData, ...JSON.parse(localStorage.getItem('neonRush3D'))};
+  if (!Array.isArray(data.unlockedCars)) data.unlockedCars = [0];
+} catch {
+  data = {...defaultData};
+}
+
+function saveData() {
+  localStorage.setItem('neonRush3D', JSON.stringify(data));
+}
+
+const cars = [
+  {name:'قرمز', color:0xff2020, price:0},
+  {name:'آبی', color:0x168cff, price:100},
+  {name:'طلایی', color:0xffd700, price:250},
+  {name:'بنفش', color:0xb34cff, price:400},
+  {name:'سبز', color:0x00d47b, price:600}
+];
+
+function updateHome() {
+  document.getElementById('homeCoins').textContent = data.coins;
+  document.getElementById('homeRecord').textContent = data.record;
+  document.getElementById('homeCar').textContent = cars[data.selectedCar].name;
+  document.getElementById('shopCoins').textContent = data.coins;
+
+  document.getElementById('recordScore').textContent = data.record;
+  document.getElementById('recordCoins').textContent = data.coins;
+  document.getElementById('recordLevel').textContent = data.bestLevel;
+  document.getElementById('recordGames').textContent = data.games;
+}
+
+function showPage(id) {
+  stopGame();
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.getElementById('overlay').classList.remove('show');
+  updateHome();
+
+  if (id === 'garagePage') renderGarage();
+  if (id === 'shopPage') renderShop();
+}
+
+function renderGarage() {
+  const area = document.getElementById('garageCards');
+  area.innerHTML = '';
+
+  cars.forEach((car, i) => {
+    const unlocked = data.unlockedCars.includes(i);
+    const selected = data.selectedCar === i;
+
+    const card = document.createElement('div');
+    card.className = 'car-card' + (selected ? ' selected' : '');
+
+    card.innerHTML = `
+      <div class="car-art" style="color:#${car.color.toString(16).padStart(6, '0')}">🏎️</div>
+      <h3>${car.name}</h3>
+      <p>${unlocked ? 'آزاد شده' : 'قیمت: ' + car.price + ' سکه'}</p>
+      <button class="btn ${selected ? 'red' : ''}" ${selected ? 'disabled' : ''}>
+        ${selected ? 'انتخاب شده' : unlocked ? 'انتخاب ماشین' : 'خرید ماشین'}
+      </button>
+    `;
+
+    card.querySelector('button').onclick = () => {
+      if (unlocked) {
+        data.selectedCar = i;
+      } else if (data.coins >= car.price) {
+        data.coins -= car.price;
+        data.unlockedCars.push(i);
+        data.selectedCar = i;
+      } else {
+        alert('سکه کافی نداری!');
+        return;
+      }
+
+      saveData();
+      updateHome();
+      updatePlayerCarModel();
+      renderGarage();
+    };
+
+    area.appendChild(card);
+  });
+
+  updateGaragePreview();
+}
+
+function renderShop() {
+  const area = document.getElementById('shopCards');
+  area.innerHTML = '';
+
+  const items = [
+    {id:'shield', name:'ارتقای سپر', price:150, emoji:'🛡️'},
+    {id:'magnet', name:'ارتقای آهن‌ربا', price:150, emoji:'🧲'}
+  ];
+
+  items.forEach(item => {
+    const level = item.id === 'shield' ? data.shieldUpgrade : data.magnetUpgrade;
+    const card = document.createElement('div');
+    card.className = 'car-card';
+
+    card.innerHTML = `
+      <div class="car-art">${item.emoji}</div>
+      <h3>${item.name}</h3>
+      <p>سطح فعلی: ${level}</p>
+      <p>هزینه: ${item.price} سکه</p>
+      <button class="btn red">خرید ارتقا</button>
+    `;
+
+    card.querySelector('button').onclick = () => {
+      if (data.coins < item.price) {
+        alert('سکه کافی نداری!');
+        return;
+      }
+
+      if (level >= 5) {
+        alert('این ارتقا به حداکثر رسیده!');
+        return;
+      }
+
+      data.coins -= item.price;
+      if (item.id === 'shield') data.shieldUpgrade++;
+      else data.magnetUpgrade++;
+
+      saveData();
+      updateHome();
+      renderShop();
+    };
+
+    area.appendChild(card);
+  });
+}
+
+function resetData() {
+  if (!confirm('تمام اطلاعات بازی پاک شود؟')) return;
+  data = {...defaultData, unlockedCars:[0]};
+  saveData();
+  updateHome();
+  alert('اطلاعات بازی پاک شد.');
+}
+
+// ===================================
+// ساخت محیط سه‌بعدی
+// ===================================
+
+const canvas = document.getElementById('gameCanvas');
+
+let scene, camera, renderer;
+let playerCar;
+let road;
+let laneMarkers = [];
+let scenery = [];
+let obstacles = [];
+let coins3D = [];
+let powerups3D = [];
+let clock = new THREE.Clock();
+
+let initialized = false;
+let running = false;
+let paused = false;
+let animationId = null;
+
+let score = 0;
+let lives = 3;
+let level = 1;
+let runCoins = 0;
+let speed = 28;
+let spawnTimer = 0;
+let coinTimer = 0;
+let powerTimer = 0;
+let shieldTime = 0;
+let magnetTime = 0;
+let hitCooldown = 0;
+
+let keys = {};
+let targetX = 0;
+
+const roadWidth = 14;
+const lanes = [-4, 0, 4];
+
+function makeMaterial(color, metalness=0.2, roughness=0.5) {
+  return new THREE.MeshStandardMaterial({
+    color,
+    metalness,
+    roughness
+  });
+}
+
+function makeBox(w,h,d,color,x,y,z, parent=scene) {
+  const mesh = new THREE.Mesh(
+    new THREE.BoxGeometry(w,h,d),
+    makeMaterial(color)
+  );
+  mesh.position.set(x,y,z);
+  mesh.castShadow = true;
+  mesh.receiveShadow = true;
+  parent.add(mesh);
+  return mesh;
+}
+
+function createCar(color) {
+  const group = new THREE.Group();
+
+  // بدنه اصلی
+  const body = new THREE.Mesh(
+    new THREE.BoxGeometry(1.65,0.55,3.2),
+    new THREE.MeshStandardMaterial({
+      color,
+      metalness:0.65,
+      roughness:0.25
+    })
+  );
+  body.position.y = 0.7;
+  body.castShadow = true;
+  group.add(body);
+
+  // کابین
+  const cabin = new THREE.Mesh(
+    new THREE.BoxGeometry(1.15,0.55,1.5),
+    new THREE.MeshStandardMaterial({
+      color:0x151b22,
+      metalness:0.5,
+      roughness:0.15
+    })
+  );
+  cabin.position.set(0,1.2,-0.15);
+  cabin.castShadow = true;
+  group.add(cabin);
+
+  // بال عقب
+  const spoiler = makeBox(1.8,0.09,0.3,0x111111,0,1.05,1.3,group);
+
+  // چراغ‌های جلو و عقب
+  makeBox(0.4,0.12,0.08,0xffffff,-0.48,0.72,-1.62,group);
+  makeBox(0.4,0.12,0.08,0xffffff,0.48,0.72,-1.62,group);
+  makeBox(0.4,0.12,0.08,0xff1010,-0.48,0.72,1.62,group);
+  makeBox(0.4,0.12,0.08,0xff1010,0.48,0.72,1.62,group);
+
+  // چرخ‌ها
+  const wheelGeometry = new THREE.CylinderGeometry(0.38,0.38,0.25,16);
+  const wheelMaterial = makeMaterial(0x090909);
+
+  for (const x of [-0.88,0.88]) {
+    for (const z of [-1.05,1.05]) {
+      const wheel = new THREE.Mesh(wheelGeometry,wheelMaterial);
+      wheel.rotation.z = Math.PI/2;
+      wheel.position.set(x,0.38,z);
+      wheel.castShadow = true;
+      group.add(wheel);
+    }
+  }
+
+  return group;
+}
+
+// ===================================
+// پیش‌نمایش سه‌بعدی گاراژ
+// ===================================
+let garageScene = null;
+let garageCamera = null;
+let garageRenderer = null;
+let garageCar = null;
+let garagePreviewFrame = null;
+
+function disposeCarModel(model) {
+  if (!model) return;
+  model.traverse(object => {
+    if (object.geometry) object.geometry.dispose();
+    if (object.material) {
+      if (Array.isArray(object.material)) object.material.forEach(m => m.dispose());
+      else object.material.dispose();
+    }
+  });
+}
+
+function updateGaragePreview() {
+  const previewCanvas = document.getElementById('garageCanvas');
+  if (!previewCanvas || typeof THREE === 'undefined') return;
+
+  if (!garageRenderer) {
+    garageScene = new THREE.Scene();
+    garageScene.background = new THREE.Color(0x101014);
+    garageCamera = new THREE.PerspectiveCamera(38, 1, 0.1, 100);
+    garageCamera.position.set(5.4, 3.1, 6.7);
+    garageCamera.lookAt(0, 0.75, 0);
+    garageRenderer = new THREE.WebGLRenderer({canvas: previewCanvas, antialias: true, alpha: false});
+    garageRenderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    garageRenderer.outputColorSpace = THREE.SRGBColorSpace;
+    garageScene.add(new THREE.HemisphereLight(0xffffff, 0x28202a, 2.2));
+    const keyLight = new THREE.DirectionalLight(0xffffff, 3);
+    keyLight.position.set(4, 8, 5);
+    garageScene.add(keyLight);
+    const redLight = new THREE.PointLight(0xff2020, 18, 14);
+    redLight.position.set(-4, 2, -2);
+    garageScene.add(redLight);
+    const floor = new THREE.Mesh(
+      new THREE.CircleGeometry(5, 48),
+      new THREE.MeshStandardMaterial({color: 0x191919, metalness: 0.25, roughness: 0.8})
+    );
+    floor.rotation.x = -Math.PI / 2;
+    floor.position.y = -0.08;
+    garageScene.add(floor);
+  }
+
+  if (garageCar) {
+    garageScene.remove(garageCar);
+    disposeCarModel(garageCar);
+  }
+  garageCar = createCar(cars[data.selectedCar].color);
+  garageCar.position.y = 0;
+  garageCar.rotation.y = -0.35;
+  garageScene.add(garageCar);
+  document.getElementById('garagePreviewName').textContent = 'ماشین انتخاب‌شده: ' + cars[data.selectedCar].name;
+
+  const width = Math.max(1, previewCanvas.clientWidth);
+  const height = Math.max(1, previewCanvas.clientHeight);
+  garageRenderer.setSize(width, height, false);
+  garageCamera.aspect = width / height;
+  garageCamera.updateProjectionMatrix();
+  garageRenderer.render(garageScene, garageCamera);
+
+  if (!garagePreviewFrame) animateGaragePreview();
+}
+
+function animateGaragePreview() {
+  if (!garageRenderer || !garageCar) {
+    garagePreviewFrame = null;
+    return;
+  }
+  if (document.getElementById('garagePage')?.classList.contains('active')) {
+    garageCar.rotation.y += 0.006;
+    garageRenderer.render(garageScene, garageCamera);
+  }
+  garagePreviewFrame = requestAnimationFrame(animateGaragePreview);
+}
+
+function updatePlayerCarModel() {
+  if (!initialized || !scene || !playerCar) return;
+  const oldCar = playerCar;
+  scene.remove(oldCar);
+  disposeCarModel(oldCar);
+  playerCar = createCar(cars[data.selectedCar].color);
+  playerCar.position.set(0, 0, 3);
+  scene.add(playerCar);
+}
+
+function init3D() {
+  if (initialized) return;
+
+  if (typeof THREE === 'undefined') {
+    alert('کتابخانه سه‌بعدی بارگذاری نشده است. اینترنت را بررسی کن.');
+    return;
+  }
+
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x07070c);
+  scene.fog = new THREE.Fog(0x07070c, 35, 150);
+
+  camera = new THREE.PerspectiveCamera(65,1,0.1,250);
+  camera.position.set(0,7,12);
+  camera.lookAt(0,1,-18);
+
+  renderer = new THREE.WebGLRenderer({
+    canvas,
+    antialias:true
+  });
+
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+  // نور محیط
+  scene.add(new THREE.HemisphereLight(0x8899bb,0x160505,2));
+
+  const redLight = new THREE.PointLight(0xff1010,80,45);
+  redLight.position.set(-7,8,-15);
+  scene.add(redLight);
+
+  const whiteLight = new THREE.DirectionalLight(0xffffff,2.5);
+  whiteLight.position.set(5,15,5);
+  whiteLight.castShadow = true;
+  scene.add(whiteLight);
+
+  // جاده
+  road = makeBox(roadWidth,0.2,220,0x202020,0,-0.15,-90);
+  
+  // حاشیه‌های قرمز جاده
+  makeBox(0.18,0.08,220,0xff1010,-7,0,-90);
+  makeBox(0.18,0.08,220,0xff1010,7,0,-90);
+
+  // خطوط وسط جاده
+  for (let lane = 0; lane < 2; lane++) {
+    for (let i = 0; i < 16; i++) {
+      const marker = makeBox(
+        0.09,0.035,5,0x999999,
+        -2.33 + lane*4.66,
+        0.01,
+        -145 + i*13
+      );
+      laneMarkers.push(marker);
+    }
+  }
+
+  // ساختمان‌های اطراف
+  for (let i = 0; i < 24; i++) {
+    for (const side of [-1,1]) {
+      const height = 5 + Math.random()*17;
+      const width = 3 + Math.random()*5;
+
+      const building = makeBox(
+        width,height,5+Math.random()*7,
+        Math.random() > 0.5 ? 0x171722 : 0x241010,
+        side*(11+Math.random()*9),
+        height/2-0.1,
+        -150+i*10
+      );
+
+      scenery.push(building);
+
+      // پنجره‌های نورانی
+      const windowLight = makeBox(
+        0.12,0.5,0.12,
+        Math.random() > 0.5 ? 0xff2020 : 0x3366ff,
+        building.position.x,
+        height*0.6,
+        building.position.z-2.6
+      );
+      scenery.push(windowLight);
+    }
+  }
+
+  playerCar = createCar(cars[data.selectedCar].color);
+  playerCar.position.set(0,0,3);
+  scene.add(playerCar);
+
+  resize3D();
+  initialized = true;
+}
+
+function resize3D() {
+  if (!renderer || !camera) return;
+
+  const width = canvas.clientWidth;
+  const height = canvas.clientHeight;
+
+  if (!width || !height) return;
+
+  renderer.setSize(width,height,false);
+  camera.aspect = width/height;
+  camera.updateProjectionMatrix();
+}
+
+window.addEventListener('resize',resize3D);
+
+// ===================================
+// شروع و توقف بازی
+// ===================================
+
+function startGame() {
+  if (!initialized) init3D();
+  if (!initialized) return;
+  updatePlayerCarModel();
+
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('gamePage').classList.add('active');
+  document.getElementById('overlay').classList.remove('show');
+
+  resize3D();
+
+  // پاک کردن اشیای بازی قبلی
+  [...obstacles,...coins3D,...powerups3D].forEach(obj => scene.remove(obj.mesh || obj));
+  obstacles = [];
+  coins3D = [];
+  powerups3D = [];
+
+  score = 0;
+  lives = 3;
+  level = 1;
+  runCoins = 0;
+  speed = 28;
+  spawnTimer = 0;
+  coinTimer = 0;
+  powerTimer = 0;
+  shieldTime = 0;
+  magnetTime = 0;
+  hitCooldown = 0;
+  targetX = 0;
+
+  playerCar.position.set(0,0,3);
+  playerCar.rotation.set(0,0,0);
+  playerCar.visible = true;
+
+  data.games++;
+  saveData();
+
+  paused = false;
+  running = true;
+  startGameAudio();
+  clock.getDelta();
+
+  updateInfo();
+
+  cancelAnimationFrame(animationId);
+  animationId = requestAnimationFrame(gameLoop);
+}
+
+function stopGame() {
+  running = false;
+  paused = false;
+  stopGameAudio();
+  cancelAnimationFrame(animationId);
+}
+
+function pauseGame() {
+  if (!running) return;
+
+  running = false;
+  paused = true;
+  pauseGameAudio();
+
+  document.getElementById('overlayTitle').textContent = 'بازی متوقف شد';
+  document.getElementById('overlayText').textContent = 'برای ادامه روی دکمه زیر بزن.';
+  document.getElementById('resumeBtn').style.display = 'inline-block';
+  document.getElementById('overlay').classList.add('show');
+}
+
+function resumeGame() {
+  document.getElementById('overlay').classList.remove('show');
+  if (!paused) return;
+
+  paused = false;
+  running = true;
+  startGameAudio();
+  clock.getDelta();
+  animationId = requestAnimationFrame(gameLoop);
+}
+
+function exitGame() {
+  stopGame();
+  showPage('homePage');
+}
+
+function finishGame() {
+  stopGame();
+
+  if (score > data.record) data.record = score;
+  if (level > data.bestLevel) data.bestLevel = level;
+
+  saveData();
+  updateHome();
+
+  document.getElementById('overlayTitle').textContent = 'پایان مسابقه!';
+  document.getElementById('overlayText').textContent =
+    'امتیاز: ' + score + ' | سکه‌های جمع‌شده: ' + runCoins;
+
+  document.getElementById('resumeBtn').style.display = 'none';
+  document.getElementById('overlay').classList.add('show');
+}
+
+// ===================================
+// ساخت موانع، سکه و قدرت‌ها
+// ===================================
+
+function createObstacle() {
+  const lane = lanes[Math.floor(Math.random()*lanes.length)];
+  const mesh = createCar(
+    [0xff3030,0xff8c00,0x8c44ff][Math.floor(Math.random()*3)]
+  );
+
+  mesh.scale.set(0.9,0.9,0.9);
+  mesh.position.set(lane,0,-110);
+  scene.add(mesh);
+
+  obstacles.push({
+    mesh,
+    passed:false,
+    hit:false
+  });
+}
+
+function createCoin() {
+  const geometry = new THREE.TorusGeometry(0.55,0.16,10,20);
+  const material = new THREE.MeshStandardMaterial({
+    color:0xffd700,
+    metalness:0.8,
+    roughness:0.2,
+    emissive:0x664400
+  });
+
+  const mesh = new THREE.Mesh(geometry,material);
+  mesh.position.set(lanes[Math.floor(Math.random()*3)],1,-110);
+  scene.add(mesh);
+
+  coins3D.push({mesh,taken:false});
+}
+
+function createPowerup() {
+  const types = ['shield','magnet','life'];
+  const type = types[Math.floor(Math.random()*types.length)];
+
+  const color = type === 'shield' ? 0x22bbff :
+                type === 'magnet' ? 0xffcc00 : 0xff2255;
+
+  const mesh = new THREE.Mesh(
+    new THREE.IcosahedronGeometry(0.8,1),
+    new THREE.MeshStandardMaterial({
+      color,
+      emissive:color,
+      emissiveIntensity:0.5,
+      metalness:0.5
+    })
+  );
+
+  mesh.position.set(lanes[Math.floor(Math.random()*3)],1,-110);
+  scene.add(mesh);
+
+  powerups3D.push({mesh,type,taken:false});
+}
+
+// ===================================
+// حلقه اصلی بازی
+// ===================================
+
+function gameLoop() {
+  if (!running) return;
+
+  animationId = requestAnimationFrame(gameLoop);
+
+  const dt = Math.min(clock.getDelta(),0.05);
+
+  updateGame(dt);
+  renderer.render(scene,camera);
+}
+
+function updateGame(dt) {
+  speed = 28 + level*3;
+  road.position.z += speed*dt;
+
+  // حرکت خطوط جاده
+  laneMarkers.forEach(marker => {
+    marker.position.z += speed*dt;
+    if (marker.position.z > 12) marker.position.z -= 208;
+  });
+
+  // حرکت ساختمان‌ها
+  scenery.forEach(item => {
+    item.position.z += speed*dt*0.85;
+    if (item.position.z > 18) item.position.z -= 240;
+  });
+
+  // حرکت نرم ماشین
+  const moveSpeed = 12;
+
+  if (keys.ArrowLeft || keys.a || keys.A) targetX -= moveSpeed*dt;
+  if (keys.ArrowRight || keys.d || keys.D) targetX += moveSpeed*dt;
+
+  targetX = THREE.MathUtils.clamp(targetX,-5.2,5.2);
+
+  playerCar.position.x += (targetX-playerCar.position.x)*Math.min(1,dt*9);
+  playerCar.rotation.z = (targetX-playerCar.position.x)*-0.035;
+
+  // حرکت دوربین
+  camera.position.x += (playerCar.position.x*0.22-camera.position.x)*dt*2;
+  camera.lookAt(playerCar.position.x*0.15,1,-18);
+
+  spawnTimer += dt;
+  coinTimer += dt;
+  powerTimer += dt;
+
+  if (spawnTimer > Math.max(0.65,1.65-level*0.07)) {
+    createObstacle();
+    spawnTimer = 0;
+  }
+
+  if (coinTimer > 0.85) {
+    createCoin();
+    coinTimer = 0;
+  }
+
+  if (powerTimer > 8) {
+    if (Math.random() > 0.4) createPowerup();
+    powerTimer = 0;
+  }
+
+  // حرکت موانع
+  obstacles.forEach(o => {
+    o.mesh.position.z += speed*dt;
+
+    if (o.mesh.position.z > 8 && !o.passed) {
+      o.passed = true;
+      score += 5;
+    }
+
+    const dx = Math.abs(o.mesh.position.x-playerCar.position.x);
+    const dz = Math.abs(o.mesh.position.z-playerCar.position.z);
+
+    if (!o.hit && hitCooldown <= 0 && dx < 1.45 && dz < 2.4) {
+      o.hit = true;
+      playSfx('crash');
+
+      if (shieldTime > 0) {
+        shieldTime = 0;
+      } else {
+        lives--;
+        hitCooldown = 1.2;
+      }
+
+      updateInfo();
+
+      if (lives <= 0) {
+        finishGame();
+        return;
+      }
+    }
+  });
+
+  obstacles = obstacles.filter(o => {
+    if (o.mesh.position.z > 18) {
+      scene.remove(o.mesh);
+      return false;
+    }
+    return true;
+  });
+
+  // حرکت سکه‌ها
+  coins3D.forEach(c => {
+    c.mesh.position.z += speed*dt;
+    c.mesh.rotation.y += dt*3;
+
+    if (magnetTime > 0) {
+      const dx = playerCar.position.x-c.mesh.position.x;
+      const dz = playerCar.position.z-c.mesh.position.z;
+
+      if (Math.hypot(dx,dz) < 13) {
+        c.mesh.position.x += dx*dt*2;
+        c.mesh.position.z += dz*dt*2;
+      }
+    }
+
+    const dx = Math.abs(c.mesh.position.x-playerCar.position.x);
+    const dz = Math.abs(c.mesh.position.z-playerCar.position.z);
+
+    if (!c.taken && dx < 1.5 && dz < 2.5) {
+      c.taken = true;
+      playSfx('coin');
+      runCoins++;
+      data.coins++;
+      score += 15;
+      saveData();
+      updateHome();
+    }
+  });
+
+  coins3D = coins3D.filter(c => {
+    if (c.taken || c.mesh.position.z > 12) {
+      scene.remove(c.mesh);
+      return false;
+    }
+    return true;
+  });
+
+  // حرکت قدرت‌ها
+  powerups3D.forEach(p => {
+    p.mesh.position.z += speed*dt;
+    p.mesh.rotation.y += dt*2;
+
+    const dx = Math.abs(p.mesh.position.x-playerCar.position.x);
+    const dz = Math.abs(p.mesh.position.z-playerCar.position.z);
+
+    if (!p.taken && dx < 1.5 && dz < 2.5) {
+      p.taken = true;
+      playSfx('power');
+
+      if (p.type === 'shield') shieldTime = 7 + data.shieldUpgrade*2;
+      if (p.type === 'magnet') magnetTime = 8 + data.magnetUpgrade*2;
+      if (p.type === 'life') lives = Math.min(5,lives+1);
+
+      updateInfo();
+    }
+  });
+
+  powerups3D = powerups3D.filter(p => {
+    if (p.taken || p.mesh.position.z > 12) {
+      scene.remove(p.mesh);
+      return false;
+    }
+    return true;
+  });
+
+  if (shieldTime > 0) shieldTime -= dt;
+  if (magnetTime > 0) magnetTime -= dt;
+  if (hitCooldown > 0) hitCooldown -= dt;
+
+  // افکت سپر
+  playerCar.children.forEach(child => {
+    if (child.material && child.material.emissive) {
+      child.material.emissive.setHex(shieldTime > 0 ? 0x113355 : 0x000000);
+    }
+  });
+
+  score += Math.floor(dt*5);
+  level = Math.floor(score/300)+1;
+
+  updateInfo();
+}
+
+function updateInfo() {
+  document.getElementById('score').textContent = score;
+  document.getElementById('lives').textContent = lives;
+  document.getElementById('level').textContent = level;
+  document.getElementById('runCoins').textContent = runCoins;
+}
+
+// ===================================
+// کنترل کیبورد و صفحه لمسی
+// ===================================
+
+window.addEventListener('keydown',e => {
+  keys[e.key] = true;
+
+  if (['ArrowLeft','ArrowRight',' '].includes(e.key)) {
+    e.preventDefault();
+  }
+});
+
+window.addEventListener('keyup',e => {
+  keys[e.key] = false;
+});
+
+function holdButton(id,key) {
+  const button = document.getElementById(id);
+
+  button.addEventListener('pointerdown',e => {
+    e.preventDefault();
+    keys[key] = true;
+  });
+
+  ['pointerup','pointerleave','pointercancel'].forEach(event => {
+    button.addEventListener(event,() => keys[key] = false);
+  });
+}
+
+holdButton('leftBtn','ArrowLeft');
+holdButton('rightBtn','ArrowRight');
+
+document.getElementById('showControls').addEventListener('change',e => {
+  document.getElementById('touchControls').style.display =
+    e.target.checked ? 'flex' : 'none';
+});
+
+// ===================================
+// راه‌اندازی اولیه
+// ===================================
+
+updateHome();
+
+</script>
+</body>
+</html>
